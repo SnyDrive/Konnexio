@@ -1,0 +1,6 @@
+.env*
+**/.env*
+**/postgres_data/*
+!**/postgres_data/.gitkeep
+local/supabase/.branches/*
+local/supabase/.temp/*

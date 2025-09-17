@@ -1,0 +1,97 @@
+name: Tooljet app
+
+services:
+  tooljet:
+    tty: true
+    stdin_open: true
+    container_name: Tooljet-app
+    image: tooljet/tooljet:ee-lts-latest
+    platform: linux/amd64
+    restart: always
+    env_file: .env
+    ports:
+      - 80:80
+    deploy: # Please adjust the resource according to your usecase
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4GB
+    depends_on:
+      - postgres
+    environment:
+      SERVE_CLIENT: "true"
+      PORT: "80"
+    command: npm run start:prod
+
+  postgres:
+    container_name: ${PG_HOST}
+    image: postgres:16
+    restart: always
+    deploy: # Please adjust the resource according to your usecase
+      resources:
+        limits:
+          cpus: '2'
+          memory: 3G
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    env_file: .env
+    environment:
+      - POSTGRES_DB=tooljet_db
+      - POSTGRES_USER=${PG_USER}
+      - POSTGRES_PASSWORD=${PG_PASS}
+
+  tooljet-worker-1:
+    tty: true
+    stdin_open: true
+    platform: linux/amd64
+    container_name: tooljet-worker-1
+    image: tooljet/tooljet:ee-lts-latest
+    restart: always
+    env_file: .env
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+    environment:
+      WORKFLOW_WORKER: "true"
+      TEMPORAL_SERVER_ADDRESS: temporal:7233
+      TEMPORAL_TASK_QUEUE_NAME_FOR_WORKFLOWS: tooljet-workflows
+      TOOLJET_WORKFLOWS_TEMPORAL_NAMESPACE: default
+    depends_on:
+      - postgres
+      - temporal
+    command: npm run worker:prod
+
+  temporal-postgresql:
+    container_name: temporal-postgresql
+    environment:
+      POSTGRES_PASSWORD: temporal
+      POSTGRES_USER: temporal
+    image: postgres:13
+
+  temporal:
+    container_name: temporal
+    platform: linux/amd64
+    depends_on:
+      - temporal-postgresql
+    environment:
+      - DB=postgres12
+      - DB_PORT=5432
+      - POSTGRES_USER=temporal
+      - POSTGRES_PWD=temporal
+      - POSTGRES_SEEDS=temporal-postgresql
+    image: temporalio/auto-setup:1.25.1
+    ports:
+      - 7233:7233
+
+volumes:
+  postgres:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./postgres_data
+  certs:
+  logs:
+  fallbackcerts:
