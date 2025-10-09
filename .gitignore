@@ -2,5 +2,6 @@
 **/.env
 **/postgres_data/*
 !**/postgres_data/.gitkeep
+!**/postgres_data/readme.md
 local/supabase/.branches/*
 local/supabase/.temp/*
