@@ -1,4 +1,4 @@
-name: Tooljet app
+name: tooljetapp
 
 services:
   tooljet:
