@@ -91,7 +91,7 @@ volumes:
     driver_opts:
       o: bind
       type: none
-      device: ./postgres_data
+      device: ./server/tooljet/postgres_data
   certs:
   logs:
   fallbackcerts:
