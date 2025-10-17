@@ -8,7 +8,7 @@ services:
     image: tooljet/tooljet:ee-lts-latest
     platform: linux/amd64
     restart: always
-    env_file: .env
+    env_file: ~/tooljet/.env
     ports:
       - 80:80
     deploy: # Please adjust the resource according to your usecase
@@ -47,7 +47,7 @@ services:
     container_name: tooljet-worker-1
     image: tooljet/tooljet:ee-lts-latest
     restart: always
-    env_file: .env
+    env_file: ~/tooljet/.env
     deploy:
       resources:
         limits:
